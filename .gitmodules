@@ -1,0 +1,3 @@
+[submodule "kdutils"]
+	path = kdutils
+	url = https://github.com/KrystianD/kdutils
