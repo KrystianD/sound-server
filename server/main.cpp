@@ -25,9 +25,9 @@ pthread_mutex_t mutex;
 pthread_cond_t cond;
 pa_simple *s_out = 0;
 
-const int ratio = 100;
+// const int ratio = 200;
 const int sampleRate = 44100;
-const int toPlayFrames = sampleRate / ratio;
+// const int toPlayFrames = sampleRate / ratio;
 const int bps = 2;
 const int channels = 2;
 
@@ -52,7 +52,7 @@ void* receiverThread(void*)
 {
 	Listener listener;
 	UdpSocket server;
-
+	
 	server.setPort(14141);
 	server.init();
 	server.bind();
@@ -64,29 +64,53 @@ void* receiverThread(void*)
 void* playerThread(void*)
 {
 	int error;
-
-	int toPlayBytes = toPlayFrames * bps * channels;
-	uint8_t toPlayBuffer[toPlayBytes];
+	
+	// int toPlayBytes = toPlayFrames * bps * channels;
+	// uint8_t toPlayBuffer[toPlayBytes];
+	uint8_t toPlayBuffer[1024 * 1024];
 	
 	for (;;)
 	{
-		int framesAvailable = dataLen / bps / channels;
-		
-		float mult = 1;
-		if (framesAvailable > 400)
-			mult = 1.03f;
-		else
-			mult = 1;
-		
-		int toFetchFrames = toPlayFrames * mult;
-		
-		int toFetchBytes = toFetchFrames * bps * channels;
-		
 		pthread_mutex_lock(&mutex);
 		
-		while (dataLen < toFetchBytes)
+		while (dataLen == 0)
 			pthread_cond_wait(&cond, &mutex);
 			
+		// pthread_mutex_unlock(&mutex);
+		
+		int framesAvailable = dataLen / bps / channels;
+		
+		int toFetchFrames = framesAvailable;
+		int toFetchBytes = toFetchFrames * bps * channels;
+		
+		// printf("f %d\n", toFetchFrames);
+		float mult = 1;
+		if (framesAvailable > 600)
+		{
+			mult = 1.03f;
+			// printf("q\r\n");
+		}
+		else
+			mult = 1;
+			
+		// if(toFetchFrames>400)
+		// {
+		// printf("a\r\n");
+		// }
+		// toFetchFrames = min(400, toFetchFrames);
+		
+		// int toFetchFrames = framesAvailable * mult;
+		
+		int toPlayFrames = toFetchFrames / mult;
+		if (toPlayFrames != toFetchFrames)
+			printf("dif %d %d\r\n", toPlayFrames, toFetchFrames);
+		int toPlayBytes = toPlayFrames * bps * channels;
+		
+		// pthread_mutex_lock(&mutex);
+		
+		// while (dataLen < toFetchBytes)
+		// pthread_cond_wait(&cond, &mutex);
+		
 		if (dataLen > 200000)
 		{
 			printf("skip\n");
@@ -106,7 +130,6 @@ void* playerThread(void*)
 		
 		pthread_mutex_unlock(&mutex);
 		
-		uint32_t a = getTicks();
 		int16_t* ptr = (int16_t*)d;
 		int16_t* ptrDest = (int16_t*)toPlayBuffer;
 		for (int i = 0; i < toPlayFrames; i++)
@@ -118,8 +141,6 @@ void* playerThread(void*)
 			for (int ch = 0; ch < channels; ch++)
 				ptrDest[i * channels + ch] = ptr[s1 * channels + ch] * (1 - r) + ptr[s2 * channels + ch] * r;
 		}
-		uint32_t b = getTicks();
-		printf("%d\n", b-a);
 		
 		if (pa_simple_write(s_out, toPlayBuffer, toPlayBytes, &error) < 0)
 			fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
@@ -130,7 +151,7 @@ int main()
 {
 	pa_sample_spec ss;
 	int error;
-
+	
 	ss.format = PA_SAMPLE_S16LE;
 	ss.rate = sampleRate;
 	ss.channels = channels;
