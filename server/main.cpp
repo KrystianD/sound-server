@@ -147,7 +147,7 @@ void* playerThread(void*)
 	}
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	pa_sample_spec ss;
 	int error;
@@ -155,9 +155,14 @@ int main()
 	ss.format = PA_SAMPLE_S16LE;
 	ss.rate = sampleRate;
 	ss.channels = channels;
+
+	const char *dev = 0;
+	if (argc == 2)
+		dev = argv[1];
+	printf("using %s\r\n", dev);
 	
 	if (!(s_out = pa_simple_new(NULL, "default", PA_STREAM_PLAYBACK,
-	                            NULL, "playback", &ss, NULL, NULL,  &error)))
+	                            dev, "playback", &ss, NULL, NULL,  &error)))
 	{
 		fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 		return 1;
