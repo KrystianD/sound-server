@@ -75,20 +75,17 @@ bool init()
 	WAVEFORMATEX *pwfx = NULL;
 	UINT32 packetLength = 0;
 	BOOL bDone = FALSE;
-	printf("1\r\n");
+
 	hr = CoCreateInstance(
 	       CLSID_MMDeviceEnumerator, NULL,
 	       CLSCTX_ALL, IID_IMMDeviceEnumerator,
 	       (void**)&pEnumerator);
-	printf("1 %d\r\n", hr);
 	EXIT_ON_ERROR(hr);
 	
 	IMMDevice *pDevice = NULL;
 	
-	printf("2\r\n");
 	hr = pEnumerator->GetDefaultAudioEndpoint(
 	       eRender, eConsole, &pDevice);
-	printf("31\r\n");
 	EXIT_ON_ERROR(hr);
 	
 	hr = pDevice->Activate(
@@ -96,7 +93,6 @@ bool init()
 	       NULL, (void**)&pAudioClient);
 	EXIT_ON_ERROR(hr);
 	
-	printf("14\r\n");
 	hr = pAudioClient->GetMixFormat(&pwfx);
 	EXIT_ON_ERROR(hr);
 	
@@ -107,36 +103,33 @@ bool init()
 	       0,
 	       pwfx,
 	       NULL);
-	printf("51\r\n");
 	EXIT_ON_ERROR(hr);
 	
 	// Get the size of the allocated buffer.
 	hr = pAudioClient->GetBufferSize(&bufferFrameCount);
 	EXIT_ON_ERROR(hr);
 	
-	printf("61\r\n");
 	hr = pAudioClient->GetService(
 	       IID_IAudioCaptureClient,
 	       (void**)&pCaptureClient);
 	EXIT_ON_ERROR(hr);
 	
-	printf("17\r\n");
 	// Notify the audio sink which format to use.
 	//hr = pMySink->SetFormat(pwfx);
-	printf("sa %d\n", pwfx->nSamplesPerSec);
-	printf("bps %d\n", pwfx->wBitsPerSample);
-	printf("ch %d\n", pwfx->nChannels);
-	printf("a %d\n", pwfx->nAvgBytesPerSec);
-	printf("f %x\n", pwfx->wFormatTag);
+	// printf("sa %d\n", pwfx->nSamplesPerSec);
+	// printf("bps %d\n", pwfx->wBitsPerSample);
+	// printf("ch %d\n", pwfx->nChannels);
+	// printf("a %d\n", pwfx->nAvgBytesPerSec);
+	// printf("f %x\n", pwfx->wFormatTag);
 	
 	int format = -1;
 	if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
 	{
 		WAVEFORMATEXTENSIBLE *ex = (WAVEFORMATEXTENSIBLE*)pwfx;
-		printf("ex chma %x\n", ex->dwChannelMask);
-		printf("ex sa %d\n", ex-> Samples);
-		printf("ex sub %d f1\n", ex->  SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
-		printf("ex sub %d f2\n", ex->  SubFormat == KSDATAFORMAT_SUBTYPE_PCM);
+		// printf("ex chma %x\n", ex->dwChannelMask);
+		// printf("ex sa %d\n", ex-> Samples);
+		// printf("ex sub %d f1\n", ex->  SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT);
+		// printf("ex sub %d f2\n", ex->  SubFormat == KSDATAFORMAT_SUBTYPE_PCM);
 		
 		if (ex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
 			format = FORMAT_FLOAT;
@@ -147,7 +140,6 @@ bool init()
 	// Calculate the actual duration of the allocated buffer.
 	hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec;
 	
-	printf("18\r\n");
 	hr = pAudioClient->Start();  // Start recording.
 	EXIT_ON_ERROR(hr);
 	
@@ -157,13 +149,13 @@ bool init()
 void initSocket()
 {
 	WSADATA wsa;
-	printf("\nInitialising Winsock...");
+	// printf("\nInitialising Winsock...");
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
-	printf("Initialised.\n");
+	// printf("Initialised.\n");
 }
 
 bool process()

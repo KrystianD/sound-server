@@ -18,14 +18,14 @@ include_directories(${CURRENT_DIR})
 if(WIN32)
   set(PROJECT_PORT_DIR ${CURRENT_DIR}/port/windows)
   set(CMAKE_C_FLAGS "-DPLATFORM_WIN32 -D_CRT_SECURE_NO_WARNINGS -std=c99")
-  set(CMAKE_CXX_FLAGS "-DPLATFORM_WIN32 -D_CRT_SECURE_NO_WARNINGS")
+  set(CMAKE_CXX_FLAGS "-DPLATFORM_WIN32 -D_CRT_SECURE_NO_WARNINGS -std=c++11")
 
 	include_directories(${CURRENT_DIR}/port/windows/)
 	link_directories(${CURRENT_DIR}/port/windows/)
 elseif(UNIX)
   set(PROJECT_PORT_DIR ${CURRENT_DIR}/port/linux)
   set(CMAKE_C_FLAGS "-DPLATFORM_LINUX -std=c99")
-  set(CMAKE_CXX_FLAGS "-DPLATFORM_LINUX")
+  set(CMAKE_CXX_FLAGS "-DPLATFORM_LINUX -std=c++11")
 
 	include_directories(${CURRENT_DIR}/port/linux/)
 endif()
@@ -49,27 +49,13 @@ if(WIN32)
 	
 	add_definitions(-DWIN32)
 
-	# add_custom_target(copy ALL COMMENT "Copying files...")
-	# add_custom_command(TARGET copy
-		# COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/port/windows/libftdi1.dll ${CMAKE_SOURCE_DIR}/bin/)
-	# add_custom_command(TARGET copy
-		# COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/port/windows/libusb-1.0.dll ${CMAKE_SOURCE_DIR}/bin/)
-
-	# if(CROSS)
-		# add_custom_command(TARGET copy
-			# COMMAND ${CMAKE_COMMAND} -E copy /usr/lib/gcc/i686-w64-mingw32/4.8/libstdc++-6.dll ${CMAKE_SOURCE_DIR}/bin/)
-		# add_custom_command(TARGET copy
-			# COMMAND ${CMAKE_COMMAND} -E copy /usr/lib/gcc/i686-w64-mingw32/4.8/libgcc_s_sjlj-1.dll ${CMAKE_SOURCE_DIR}/bin/)
-		# add_custom_command(TARGET copy
-			# COMMAND ${CMAKE_COMMAND} -E copy /usr/i686-w64-mingw32/lib/libwinpthread-1.dll ${CMAKE_SOURCE_DIR}/bin/)
-	# endif()
 elseif(UNIX)
 	set(TARGET_NAME sound)
 	add_definitions(-DUNIX)
 
 	add_executable(${TARGET_NAME} port/linux/capture.cpp ${COMMON_SOURCES})
 
-	target_link_libraries(${TARGET_NAME} pthread)
+	target_link_libraries(${TARGET_NAME} pthread pulse pulse-simple)
 endif()
 
 if(DEBUG)

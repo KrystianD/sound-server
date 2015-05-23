@@ -8,6 +8,7 @@
 #define __CAPTURE_H__
 
 #define FORMAT_FLOAT 0
+#define FORMAT_INT16 1
 
 extern void onSetFormat(int sampleRate, int format, int channels);
 extern void onNewData(void* data, int framesCnt);
