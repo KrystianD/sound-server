@@ -44,7 +44,7 @@ void onNewData(void* data, int framesCnt)
 	if (samples)
 	{
 		for (int i = 0; i < samplesCnt; i++)
-			samples[i] = (int16_t)(((int32_t)samples[i]) * 100 / volume);
+			samples[i] = (int16_t)(((int32_t)samples[i]) * volume / 100);
 			
 		int inBytes = samplesCnt * sizeof(int16_t);
 		uint8_t *outData;
@@ -59,7 +59,7 @@ void onNewData(void* data, int framesCnt)
 			outData = (uint8_t*)samples;
 			outSamplesCnt = samplesCnt;
 		}
-		// socket.sendData("192.168.2.2", 14141, outData, outSamplesCnt * sizeof(int16_t));
+		socket.sendData("192.168.2.2", 14141, outData, outSamplesCnt * sizeof(int16_t));
 		if (outSampleRate != srcSampleRate)
 		{
 			delete [] outData;

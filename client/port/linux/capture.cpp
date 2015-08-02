@@ -45,7 +45,6 @@ bool process()
 	int numFrames = 100;
 	char buffer[numFrames * 2 * 2];
 	
-	printf("r\r\n");
 	int r = pa_simple_read(s_in, buffer, sizeof(buffer), 0);
 	if (r == 0)
 	{
