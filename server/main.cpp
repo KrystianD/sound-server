@@ -85,9 +85,13 @@ void* playerThread(void*)
 		
 		// printf("f %d\n", toFetchFrames);
 		float mult = 1;
-		if (framesAvailable > 600)
+		if (framesAvailable > 2000)
 		{
-			mult = 1.03f;
+			mult = 1;
+			dataLen = 0;
+			rxPtr = txPtr;
+			pthread_mutex_unlock(&mutex);
+			continue;
 			// printf("q\r\n");
 		}
 		else
@@ -104,6 +108,8 @@ void* playerThread(void*)
 		int toPlayFrames = toFetchFrames / mult;
 		if (toPlayFrames != toFetchFrames)
 			printf("dif %d %d\r\n", toPlayFrames, toFetchFrames);
+		else
+			printf("%d\r\n", toFetchFrames);
 		int toPlayBytes = toPlayFrames * bps * channels;
 		
 		// pthread_mutex_lock(&mutex);
